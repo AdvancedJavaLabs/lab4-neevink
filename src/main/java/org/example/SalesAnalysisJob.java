@@ -17,20 +17,24 @@ import org.example.sort.ValueAsKeyReducer;
 
 public class SalesAnalysisJob {
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.err.println("Usage: hadoop jar /tmp/sales-analytics-1.0-SNAPSHOT.jar org.example.SalesAnalysisJob <input path> <final output path>");
+        if (args.length != 4) {
+            System.err.println("Usage: hadoop jar /tmp/sales-analytics-1.0-SNAPSHOT.jar org.example.SalesAnalysisJob <input path> <final output path> <REDUCERS_COUNT=1> <DATABLOCK_SIZE_KB=1>");
             System.exit(-1);
         }
 
         String inputDir = args[0];
         String outputDir = args[1];
+        int reducersCount = Integer.parseInt(args[2]);
+        int datablockSizeMb = Integer.parseInt(args[3]) * ((int) Math.pow(2, 10)); // * 1 kb
         String intermediateResultDir = outputDir + "-intermediate";
 
         long startTime = System.currentTimeMillis();
         Configuration conf = new Configuration();
+        conf.set("mapreduce.input.fileinputformat.split.maxsize", Integer.toString(datablockSizeMb));
 
         // Анализ продаж
         Job salesAnalysisJob = Job.getInstance(conf, "sales analysis");
+        salesAnalysisJob.setNumReduceTasks(reducersCount); // Количество reduce задач
         salesAnalysisJob.setJarByClass(SalesAnalysisJob.class);
         salesAnalysisJob.setMapperClass(SalesMapper.class);
         salesAnalysisJob.setReducerClass(SalesReducer.class);
