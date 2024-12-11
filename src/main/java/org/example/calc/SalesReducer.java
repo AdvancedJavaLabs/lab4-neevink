@@ -1,7 +1,8 @@
-package org.example;
+package org.example.calc;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+
 import java.io.IOException;
 
 public class SalesReducer extends Reducer<Text, SalesData, Text, Text> {

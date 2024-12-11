@@ -7,9 +7,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.example.calc.SalesData;
+import org.example.calc.SalesMapper;
+import org.example.calc.SalesReducer;
+import org.example.sort.ValueAsKeyData;
+import org.example.sort.ValueAsKeyMapper;
+import org.example.sort.ValueAsKeyReducer;
 
-
-import org.apache.hadoop.io.IntWritable;
 
 public class SalesAnalysisJob {
     public static void main(String[] args) throws Exception {
@@ -18,9 +22,13 @@ public class SalesAnalysisJob {
             System.exit(-1);
         }
 
+        String inputDir = args[0];
+        String intermediateResultDir = args[1];
+        String outputDir = args[2];
+
         Configuration conf = new Configuration();
 
-        // Первая задача: Анализ продаж
+        // Анализ продаж
         Job salesAnalysisJob = Job.getInstance(conf, "sales analysis");
         salesAnalysisJob.setJarByClass(SalesAnalysisJob.class);
         salesAnalysisJob.setMapperClass(SalesMapper.class);
@@ -29,11 +37,9 @@ public class SalesAnalysisJob {
         salesAnalysisJob.setMapOutputValueClass(SalesData.class);
         salesAnalysisJob.setOutputKeyClass(Text.class);
         salesAnalysisJob.setOutputValueClass(Text.class);
-//        salesAnalysisJob.setSortComparatorClass(CustomKeyComparator.class);
-//        salesAnalysisJob.setOutputFormatClass(CustomTextOutputFormat.class);
 
-        FileInputFormat.addInputPath(salesAnalysisJob, new Path(args[0]));
-        Path intermediateOutput = new Path(args[1]);
+        FileInputFormat.addInputPath(salesAnalysisJob, new Path(inputDir));
+        Path intermediateOutput = new Path(intermediateResultDir);
         FileOutputFormat.setOutputPath(salesAnalysisJob, intermediateOutput);
 
         boolean success = salesAnalysisJob.waitForCompletion(true);
@@ -42,20 +48,20 @@ public class SalesAnalysisJob {
             System.exit(1);
         }
 
-        // Вторая задача: Сортировка по значениям
-        Job sortByValueJob = Job.getInstance(conf, "sort by value");
+        // Сортировка
+        Job sortByValueJob = Job.getInstance(conf, "sorting by revenue");
         sortByValueJob.setJarByClass(SalesAnalysisJob.class);
         sortByValueJob.setMapperClass(ValueAsKeyMapper.class);
         sortByValueJob.setReducerClass(ValueAsKeyReducer.class);
-        sortByValueJob.setMapOutputKeyClass(DoubleWritable.class);
-        sortByValueJob.setMapOutputValueClass(Text.class);
-//        sortByValueJob.setSortComparatorClass(DescendingDoubleComparator.class);
 
-        sortByValueJob.setOutputKeyClass(Text.class);
-        sortByValueJob.setOutputValueClass(DoubleWritable.class);
+        sortByValueJob.setMapOutputKeyClass(DoubleWritable.class);
+        sortByValueJob.setMapOutputValueClass(ValueAsKeyData.class);
+
+        sortByValueJob.setOutputKeyClass(ValueAsKeyData.class);
+        sortByValueJob.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(sortByValueJob, intermediateOutput);
-        FileOutputFormat.setOutputPath(sortByValueJob, new Path(args[2]));
+        FileOutputFormat.setOutputPath(sortByValueJob, new Path(outputDir));
 
         System.exit(sortByValueJob.waitForCompletion(true) ? 0 : 1);
     }

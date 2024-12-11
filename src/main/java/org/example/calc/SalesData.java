@@ -1,7 +1,8 @@
-package org.example;
+package org.example.calc;
 
 import org.apache.hadoop.io.Writable;
 
+import java.io.DataOutput;
 import java.io.IOException;
 
 public class SalesData implements Writable {
@@ -17,7 +18,7 @@ public class SalesData implements Writable {
     }
 
     @Override
-    public void write(java.io.DataOutput out) throws IOException {
+    public void write(DataOutput out) throws IOException {
         out.writeDouble(revenue);
         out.writeInt(quantity);
     }
@@ -34,10 +35,5 @@ public class SalesData implements Writable {
 
     public int getQuantity() {
         return quantity;
-    }
-
-    public void add(SalesData other) {
-        this.revenue += other.revenue;
-        this.quantity += other.quantity;
     }
 }
