@@ -17,15 +17,16 @@ import org.example.sort.ValueAsKeyReducer;
 
 public class SalesAnalysisJob {
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
-            System.err.println("Usage: SalesPipelineJob <input path> <intermediate output path> <final output path>");
+        if (args.length != 2) {
+            System.err.println("Usage: hadoop jar /tmp/sales-analytics-1.0-SNAPSHOT.jar org.example.SalesAnalysisJob <input path> <final output path>");
             System.exit(-1);
         }
 
         String inputDir = args[0];
-        String intermediateResultDir = args[1];
-        String outputDir = args[2];
+        String outputDir = args[1];
+        String intermediateResultDir = outputDir + "-intermediate";
 
+        long startTime = System.currentTimeMillis();
         Configuration conf = new Configuration();
 
         // Анализ продаж
@@ -63,8 +64,9 @@ public class SalesAnalysisJob {
         FileInputFormat.addInputPath(sortByValueJob, intermediateOutput);
         FileOutputFormat.setOutputPath(sortByValueJob, new Path(outputDir));
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("Jobs completed in " + (endTime - startTime) + " milliseconds.");
+
         System.exit(sortByValueJob.waitForCompletion(true) ? 0 : 1);
     }
 }
-
-
