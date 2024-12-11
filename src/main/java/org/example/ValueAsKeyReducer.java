@@ -13,7 +13,8 @@ public class ValueAsKeyReducer extends Reducer<DoubleWritable, Text, Text, Doubl
     @Override
     protected void reduce(DoubleWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         for (Text value : values) {
-            context.write(value, key);
+            DoubleWritable dw = new DoubleWritable(-1 * key.get());
+            context.write(value, dw);
         }
     }
 }

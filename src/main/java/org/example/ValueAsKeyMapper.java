@@ -2,7 +2,6 @@ package org.example;
 
 
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -17,7 +16,7 @@ public class ValueAsKeyMapper extends Mapper<Object, Text, DoubleWritable, Text>
         if (fields.length == 3) {
             String originalKey = fields[0];
             double val = Double.parseDouble(fields[1]);
-            outKey.set(val);
+            outKey.set(-1 * val);
             context.write(outKey, new Text(originalKey));
         }
     }

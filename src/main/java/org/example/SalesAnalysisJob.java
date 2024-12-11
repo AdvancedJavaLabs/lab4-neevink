@@ -49,9 +49,10 @@ public class SalesAnalysisJob {
         sortByValueJob.setReducerClass(ValueAsKeyReducer.class);
         sortByValueJob.setMapOutputKeyClass(DoubleWritable.class);
         sortByValueJob.setMapOutputValueClass(Text.class);
+//        sortByValueJob.setSortComparatorClass(DescendingDoubleComparator.class);
+
         sortByValueJob.setOutputKeyClass(Text.class);
         sortByValueJob.setOutputValueClass(DoubleWritable.class);
-        sortByValueJob.setSortComparatorClass(DescendingIntComparator.class);
 
         FileInputFormat.addInputPath(sortByValueJob, intermediateOutput);
         FileOutputFormat.setOutputPath(sortByValueJob, new Path(args[2]));
